@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>Prometheus Obfuscator - Lua Code Protection</title>
+  <meta name="description" content="Protect your Lua code with Prometheus Obfuscator. Powerful obfuscation with the strongest presets for maximum security." />
+  <link rel="icon" type="image/png" href="prometheus-obfuscator/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="title-section">
+          <h1 class="app-title">Prometheus</h1>
+          <p class="app-subtitle">Lua Code Protection</p>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <a href="https://github.com/levno-710/Prometheus" target="_blank" rel="noopener noreferrer" class="icon-btn" title="View on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+        </a>
+        <a href="https://levno-710.gitbook.io/prometheus" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Documentation">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+        </a>
+        <button class="icon-btn" id="settingsBtn" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+        <button class="primary-btn" id="obfuscateBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span>Obfuscate</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="mobile-tabs">
+        <button class="tab-btn active" data-tab="input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+          Input
+        </button>
+        <button class="tab-btn" data-tab="output">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          Output
+          <span class="output-indicator hidden" id="outputIndicator"></span>
+        </button>
+      </div>
+
+      <div class="panels">
+        <div class="panel input-panel" id="inputPanel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <polyline points="16 18 22 12 16 6"/>
+                <polyline points="8 6 2 12 8 18"/>
+              </svg>
+              <span>Input Code</span>
+            </div>
+            <div class="panel-actions">
+              <button class="ghost-btn" id="sampleBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <span class="btn-text">Sample</span>
+              </button>
+              <button class="ghost-btn" id="copyInputBtn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" class="copy-icon">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" class="check-icon hidden">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span class="btn-text">Copy</span>
+              </button>
+              <button class="ghost-btn" id="clearBtn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                <span class="btn-text">Clear</span>
+              </button>
+            </div>
+          </div>
+          <div class="editor-container" id="inputEditorContainer">
+            <div class="empty-state" id="inputEmptyState">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48">
+                <polyline points="16 18 22 12 16 6"/>
+                <polyline points="8 6 2 12 8 18"/>
+              </svg>
+              <p>Paste your Lua code here</p>
+              <p class="empty-hint">or click "Sample" to load example code</p>
+            </div>
+            <div id="inputEditor"></div>
+          </div>
+          <div class="panel-footer">
+            <span id="inputLines">1 lines</span>
+            <span id="inputChars">0 characters</span>
+          </div>
+        </div>
+
+        <div class="resize-handle" id="resizeHandle"></div>
+
+        <div class="panel output-panel" id="outputPanel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <span>Obfuscated Output</span>
+            </div>
+            <div class="panel-actions">
+              <button class="ghost-btn" id="copyOutputBtn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" class="copy-icon">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" class="check-icon hidden">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span class="btn-text">Copy</span>
+              </button>
+              <button class="ghost-btn" id="downloadBtn" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span class="btn-text">Download</span>
+              </button>
+            </div>
+          </div>
+          <div class="editor-container" id="outputEditorContainer">
+            <div class="empty-state" id="outputEmptyState">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <p>Obfuscated code will appear here</p>
+              <p class="empty-hint">Click "Obfuscate Code" to process your code</p>
+            </div>
+            <div id="outputEditor"></div>
+          </div>
+          <div class="panel-footer">
+            <span id="outputLines">0 lines</span>
+            <span id="outputChars">0 characters</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>Powered by Prometheus</span>
+      <span class="separator">|</span>
+      <span id="footerPreset">Maximum Preset</span>
+      <span class="separator desktop-only">|</span>
+      <span class="desktop-only">
+        <kbd>Ctrl+Enter</kbd>
+        <span>to obfuscate</span>
+      </span>
+    </footer>
+
+    <div class="settings-overlay hidden" id="settingsOverlay">
+      <div class="settings-panel">
+        <div class="settings-header">
+          <h2>Obfuscation Settings</h2>
+          <p>Configure the obfuscation preset and options.</p>
+        </div>
+        <div class="settings-content">
+          <div class="settings-section">
+            <label class="settings-label">Obfuscation Preset</label>
+            <div class="preset-options" id="presetOptions">
+              <label class="preset-option">
+                <input type="radio" name="preset" value="Weak">
+                <div class="preset-info">
+                  <span class="preset-name">Weak</span>
+                  <span class="preset-desc">Light obfuscation, smallest output size</span>
+                </div>
+              </label>
+              <label class="preset-option">
+                <input type="radio" name="preset" value="Medium">
+                <div class="preset-info">
+                  <span class="preset-name">Medium</span>
+                  <span class="preset-desc">Balanced protection and performance</span>
+                </div>
+              </label>
+              <label class="preset-option">
+                <input type="radio" name="preset" value="Strong">
+                <div class="preset-info">
+                  <span class="preset-name">Strong</span>
+                  <span class="preset-desc">High security with advanced protection</span>
+                </div>
+              </label>
+              <label class="preset-option">
+                <input type="radio" name="preset" value="Maximum" checked>
+                <div class="preset-info">
+                  <span class="preset-name">Maximum</span>
+                  <span class="preset-desc">Maximum security with VM-based execution</span>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="settings-section">
+            <p class="settings-label">Current Selection</p>
+            <div class="current-preset">
+              <p class="current-preset-name" id="currentPresetName">Maximum Preset</p>
+              <p class="current-preset-desc" id="currentPresetDesc">Maximum security with VM-based execution</p>
+            </div>
+          </div>
+          <button class="primary-btn full-width" id="applySettingsBtn">Apply Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="fengari-web.js"></script>
+  <script src="lua-bundle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
