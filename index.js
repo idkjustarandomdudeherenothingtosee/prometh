@@ -410,7 +410,7 @@ async function handleObfuscate() {
         local inputCode = "${escapedCode}"
         local result = pipeline:apply(inputCode, "input.lua")
 
-        return "-- Obfuscated with light obfuscator v1.2\n" .. result
+        return "-- Obfuscated with light obfuscator v1.2\\n" .. result
       end
       
       local ok, result = pcall(runObfuscation)
