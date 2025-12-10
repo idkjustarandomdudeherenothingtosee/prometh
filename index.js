@@ -188,6 +188,79 @@ lua.lua_settable(luaState, -3);
           end,
         }
       end
+
+            -- Polyfills for Lua 5.1 compatibility
+      if not bit32 then
+        bit32 = {
+          band = function(a, b) return a & b end,
+          bor = function(a, b) return a | b end,
+          bxor = function(a, b) return a ~ b end,
+          bnot = function(a) return ~a end,
+          lshift = function(a, b) return a << b end,
+          rshift = function(a, b) return a >> b end,
+          arshift = function(a, b) return a >> b end,
+          extract = function(n, field, width)
+            width = width or 1
+            return (n >> field) & ((1 << width) - 1)
+          end,
+          replace = function(n, v, field, width)
+            width = width or 1
+            local mask = (1 << width) - 1
+            return (n & ~(mask << field)) | ((v & mask) << field)
+          end,
+        }
+      end
+
+      -- safe math.random to avoid 'interval too large' / nil errors
+      do
+        local original_random = math and math.random
+        local original_randomseed = math and math.randomseed
+
+        if type(original_random) == "function" then
+          local max_int = 2 ^ 31 - 1
+
+          math.random = function(a, b)
+            if a == nil then
+              return original_random()
+            elseif b == nil then
+              return math.random(1, a)
+            end
+
+            if a > b then a, b = b, a end
+            local diff = b - a
+
+            if diff <= max_int then
+              return original_random(a, b)
+            end
+
+            local r = original_random()
+            if type(r) == "number" and r >= 0 and r < 1 then
+              return a + math.floor(r * (diff + 1))
+            end
+
+            local value = 0
+            local base = max_int + 1
+            local remaining = diff + 1
+
+            while remaining > 0 do
+              value = value * base + (original_random(0, max_int) or 0)
+              remaining = math.floor(remaining / base)
+            end
+
+            return a + (value % (diff + 1))
+          end
+
+          if type(original_randomseed) == "function" then
+            math.randomseed = original_randomseed
+          end
+        end
+      end
+
+      -- Polyfill for unpack
+      if not unpack then
+        unpack = table.unpack
+      end
+
       
       -- Polyfill for unpack
       if not unpack then
