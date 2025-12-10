@@ -402,8 +402,7 @@ async function handleObfuscate() {
             Settings = stepData.Settings or {}
           })
         end
-
-        // Inject ALL modules into output script
+        
         pipeline.Config.InjectRuntimeModules = true;
 
         
