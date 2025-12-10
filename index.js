@@ -1,5 +1,4 @@
 const SAMPLE_CODE = `-- Light Obfuscator Sample
--- Enter your Lua code here to obfuscate it
 
 local function greet(name)
     print("Hello, " .. name .. "!")
@@ -11,7 +10,6 @@ local function calculateSum(a, b)
     return result
 end
 
--- Main execution
 local userName = "World"
 greet(userName)
 
@@ -22,15 +20,15 @@ print("Sum: " .. sum)
 const PRESET_INFO = {
   Weak: { label: "Weak", description: "Light obfuscation, smallest output size" },
   Medium: { label: "Medium", description: "Balanced protection and performance" },
-  Strong: { label: "Strong", description: "High security with advanced protection" },
-  Maximum: { label: "Maximum", description: "Maximum security with VM-based execution" }
+  Strong: { label: "Strong", description: "NOT COMPATIBLE WITH LUAU!" },
+  Maximum: { label: "Maximum", description: "NOT COMPATIBLE WITH LUAU!" }
 };
 
 let inputEditor = null;
 let outputEditor = null;
 let inputCode = "";
 let outputCode = "";
-let currentPreset = "Maximum";
+let currentPreset = "Medium";
 let isProcessing = false;
 let fengariReady = false;
 let luaState = null;
