@@ -403,10 +403,8 @@ async function handleObfuscate() {
           })
         end
         
-        pipeline.Config.InjectRuntimeModules = true;
-
-        
         local pipeline = Pipeline:fromConfig(config)
+        pipeline.Config.InjectRuntimeModules = true;
         local inputCode = "${escapedCode}"
         local result = pipeline:apply(inputCode, "input.lua")
 
