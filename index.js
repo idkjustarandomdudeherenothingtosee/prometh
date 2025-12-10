@@ -387,7 +387,7 @@ async function handleObfuscate() {
         logger.logLevel = 0
         
         local config = {
-          LuaVersion = "LuaU",
+          LuaVersion = LuaVersion.LuaU,
           VarNamePrefix = "",
           NameGenerator = "MangledShuffled",
           PrettyPrint = false,
