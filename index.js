@@ -1,4 +1,4 @@
-const SAMPLE_CODE = `-- Prometheus Obfuscator Sample
+const SAMPLE_CODE = `-- Light Obfuscator Sample
 -- Enter your Lua code here to obfuscate it
 
 local function greet(name)
@@ -402,6 +402,10 @@ async function handleObfuscate() {
             Settings = stepData.Settings or {}
           })
         end
+
+        // Inject ALL modules into output script
+        pipeline.Config.InjectRuntimeModules = true;
+
         
         local pipeline = Pipeline:fromConfig(config)
         local inputCode = "${escapedCode}"
@@ -497,6 +501,8 @@ function loadSample() {
   updateButtonStates();
   showToast("Sample Loaded", "Sample Lua code has been loaded into the editor.");
 }
+
+loadSample();
 
 function clearInput() {
   inputCode = "";
