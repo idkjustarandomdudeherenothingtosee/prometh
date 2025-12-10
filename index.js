@@ -384,7 +384,6 @@ async function handleObfuscate() {
         local Pipeline = require("prometheus.pipeline")
         local logger = require("logger")
         
-        -- Silence logger for cleaner output
         logger.logLevel = 0
         
         local config = {
@@ -396,7 +395,6 @@ async function handleObfuscate() {
           Steps = {}
         }
         
-        -- Parse steps from preset
         local stepsData = ${stepsLua}
         for i, stepData in ipairs(stepsData) do
           table.insert(config.Steps, {
@@ -408,7 +406,8 @@ async function handleObfuscate() {
         local pipeline = Pipeline:fromConfig(config)
         local inputCode = "${escapedCode}"
         local result = pipeline:apply(inputCode, "input.lua")
-        return result
+
+        return "-- Obfuscated with light obfuscator v1.2\\n" .. result
       end
       
       local ok, result = pcall(runObfuscation)
@@ -418,6 +417,7 @@ async function handleObfuscate() {
         error(result)
       end
     `;
+
     
     const result = lauxlib.luaL_dostring(luaState, to_luastring(obfuscateScript));
     
