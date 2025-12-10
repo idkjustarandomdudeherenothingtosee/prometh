@@ -91,56 +91,6 @@ function initFengari() {
     console.log('Fengari modules extracted:', { lua: !!lua, lauxlib: !!lauxlib, lualib: !!lualib });
     luaState = lauxlib.luaL_newstate();
     lualib.luaL_openlibs(luaState);
-
-    // --- RNG FIX FOR PROMETHEUS OBFS ---
-// Fengari cannot handle Prometheus' Lua 5.1 math.random patch (pcall fails on JS exceptions)
-// So we override math.random with a JS-backed RNG before Prometheus loads.
-
-const rngPatchLua = `
-js = js or {}
-function js.random()
-    return js.globalRandom()
-end
-
--- override math.random using JS RNG
-local oldrandom = math.random
-
-math.random = function(a, b)
-    -- no args -> between 0 and 1
-    if not a then
-        return js.random()
-    end
-
-    -- one arg -> 1 to a
-    if not b then
-        return 1 + math.floor(js.random() * a)
-    end
-
-    -- ensure a <= b
-    if a > b then
-        a, b = b, a
-    end
-
-    return a + math.floor(js.random() * (b - a + 1))
-end
-`;
-
-lauxlib.luaL_dostring(luaState, to_luastring(rngPatchLua));
-
-// Provide the JS RNG function into Lua
-fengari.js_globalRandom = () => Math.random();
-
-// Expose JS RNG to Lua via global table `js.globalRandom`
-lua.lua_getglobal(luaState, to_luastring("_G"));
-lua.lua_pushstring(luaState, to_luastring("js"));
-lua.lua_newtable(luaState);
-
-lua.lua_pushstring(luaState, to_luastring("globalRandom"));
-lua.lua_pushjsfunction(luaState, fengari.js_globalRandom);
-lua.lua_settable(luaState, -3);
-
-lua.lua_settable(luaState, -3);
-
     
     const preloadCode = `
       -- Mock arg table (command-line arguments - not used in browser)
