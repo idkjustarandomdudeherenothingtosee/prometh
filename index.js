@@ -392,6 +392,7 @@ async function handleObfuscate() {
           NameGenerator = "MangledShuffled",
           PrettyPrint = false,
           Seed = math.random(1, 1000000),
+          InjectRuntimeModules = true,
           Steps = {}
         }
         
@@ -404,7 +405,6 @@ async function handleObfuscate() {
         end
         
         local pipeline = Pipeline:fromConfig(config)
-        pipeline.config.InjectRuntimeModules = true;
         local inputCode = "${escapedCode}"
         local result = pipeline:apply(inputCode, "input.lua")
 
