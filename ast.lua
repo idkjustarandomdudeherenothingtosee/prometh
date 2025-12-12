@@ -1,6 +1,10 @@
--- This Script is Part of the Prometheus Obfuscator by Levno_710
+-- This Script is Part of the Prometheus Obfuscator by narodi
 --
 -- ast.lua
+
+local function pick(n)
+return math.random(1,n)
+end
 
 local Ast = {}
 
@@ -138,7 +142,7 @@ function Ast.ConstantNode(val)
 	end
 end
 
-
+local DISABLE_SIMPLIFY = true
 
 function Ast.NopStatement()
 	return {
@@ -416,7 +420,7 @@ end
 function Ast.BooleanExpression(value)
 	return {
 		kind = AstKind.BooleanExpression,
-		isConstant = true,
+		isConstant = false,
 		value = value,
 	}
 end
@@ -424,7 +428,7 @@ end
 function Ast.NilExpression()
 	return {
 		kind = AstKind.NilExpression,
-		isConstant = true,
+		isConstant = false,
 		value = nil,
 	}
 end
@@ -432,7 +436,7 @@ end
 function Ast.NumberExpression(value)
 	return {
 		kind = AstKind.NumberExpression,
-		isConstant = true,
+		isConstant = false,
 		value = value,
 	}
 end
@@ -440,13 +444,13 @@ end
 function Ast.StringExpression(value)
 	return {
 		kind = AstKind.StringExpression,
-		isConstant = true,
+		isConstant = false,
 		value = value,
 	}
 end
 
 function Ast.OrExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value or rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -462,7 +466,7 @@ function Ast.OrExpression(lhs, rhs, simplify)
 end
 
 function Ast.AndExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value and rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -478,7 +482,7 @@ function Ast.AndExpression(lhs, rhs, simplify)
 end
 
 function Ast.LessThanExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value < rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -494,7 +498,7 @@ function Ast.LessThanExpression(lhs, rhs, simplify)
 end
 
 function Ast.GreaterThanExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value > rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -510,7 +514,7 @@ function Ast.GreaterThanExpression(lhs, rhs, simplify)
 end
 
 function Ast.LessThanOrEqualsExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value <= rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -526,7 +530,7 @@ function Ast.LessThanOrEqualsExpression(lhs, rhs, simplify)
 end
 
 function Ast.GreaterThanOrEqualsExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value >= rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -542,39 +546,121 @@ function Ast.GreaterThanOrEqualsExpression(lhs, rhs, simplify)
 end
 
 function Ast.NotEqualsExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value ~= rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local v = pick(3)
 
-	return {
-		kind = AstKind.NotEqualsExpression,
-		lhs = lhs,
-		rhs = rhs,
-		isConstant = false,
-	}
+	if v == 1 then
+		return {
+			kind = AstKind.NotEqualsExpression,
+			lhs = lhs,
+			rhs = rhs,
+			isConstant = false,
+		}
+
+	elseif v == 2 then
+		return {
+			kind = AstKind.NotExpression,
+			rhs = {
+				kind = AstKind.EqualsExpression,
+				lhs = lhs,
+				rhs = rhs,
+				isConstant = false,
+			},
+			isConstant = false,
+		}
+
+	else
+		return {
+			kind = AstKind.OrExpression,
+			lhs = {
+				kind = AstKind.LessThanExpression,
+				lhs = lhs,
+				rhs = rhs,
+				isConstant = false,
+			},
+			rhs = {
+				kind = AstKind.GreaterThanExpression,
+				lhs = lhs,
+				rhs = rhs,
+				isConstant = false,
+			},
+			isConstant = false,
+		}
+	end
 end
+
 
 function Ast.EqualsExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
-		local success, val = pcall(function() return lhs.value == rhs.value end);
-		if success then
-			return Ast.ConstantNode(val);
-		end
-	end
+	local v = pick(4)
 
-	return {
-		kind = AstKind.EqualsExpression,
-		lhs = lhs,
-		rhs = rhs,
-		isConstant = false,
-	}
+	if v == 1 then
+		return {
+			kind = AstKind.EqualsExpression,
+			lhs = lhs,
+			rhs = rhs,
+			isConstant = false,
+		}
+
+	elseif v == 2 then
+		return {
+			kind = AstKind.NotExpression,
+			rhs = {
+				kind = AstKind.NotEqualsExpression,
+				lhs = lhs,
+				rhs = rhs,
+				isConstant = false,
+			},
+			isConstant = false,
+		}
+
+	elseif v == 3 then
+		return {
+			kind = AstKind.AndExpression,
+			lhs = {
+				kind = AstKind.LessThanOrEqualsExpression,
+				lhs = lhs,
+				rhs = rhs,
+				isConstant = false,
+			},
+			rhs = {
+				kind = AstKind.GreaterThanOrEqualsExpression,
+				lhs = lhs,
+				rhs = rhs,
+				isConstant = false,
+			},
+			isConstant = false,
+		}
+
+	else
+		return {
+			kind = AstKind.AndExpression,
+			lhs = {
+				kind = AstKind.NotExpression,
+				rhs = {
+					kind = AstKind.LessThanExpression,
+					lhs = lhs,
+					rhs = rhs,
+					isConstant = false,
+				},
+				isConstant = false,
+			},
+			rhs = {
+				kind = AstKind.NotExpression,
+				rhs = {
+					kind = AstKind.GreaterThanExpression,
+					lhs = lhs,
+					rhs = rhs,
+					isConstant = false,
+				},
+				isConstant = false,
+			},
+			isConstant = false,
+		}
+	end
 end
 
+
 function Ast.StrCatExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value .. rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -590,7 +676,7 @@ function Ast.StrCatExpression(lhs, rhs, simplify)
 end
 
 function Ast.AddExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value + rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -606,7 +692,7 @@ function Ast.AddExpression(lhs, rhs, simplify)
 end
 
 function Ast.SubExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value - rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -622,7 +708,7 @@ function Ast.SubExpression(lhs, rhs, simplify)
 end
 
 function Ast.MulExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value * rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -654,7 +740,7 @@ function Ast.DivExpression(lhs, rhs, simplify)
 end
 
 function Ast.ModExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value % rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
@@ -715,7 +801,7 @@ function Ast.LenExpression(rhs, simplify)
 end
 
 function Ast.PowExpression(lhs, rhs, simplify)
-	if(simplify and rhs.isConstant and lhs.isConstant) then
+	if(not DISABLE_SIMPLIFY and simplify and rhs.isConstant and lhs.isConstant) then
 		local success, val = pcall(function() return lhs.value ^ rhs.value end);
 		if success then
 			return Ast.ConstantNode(val);
