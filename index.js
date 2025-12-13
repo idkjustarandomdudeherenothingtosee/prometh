@@ -640,3 +640,126 @@ updatePresetDisplay();
   switchToTab("input");
   updatePresetDisplay();
 });
+
+
+
+
+async function obfuscateCode(code, preset = "Medium") {
+  if (!fengariReady) {
+    throw new Error("engine not ready")
+  }
+
+  if (typeof code !== "string" || !code.trim()) {
+    throw new Error("invalid code")
+  }
+
+  const { lua, lauxlib, to_luastring, to_jsstring } = fengari
+  const presetConfig = PRESETS[preset]
+
+  if (!presetConfig) {
+    throw new Error("invalid preset")
+  }
+
+  function toLuaTable(obj) {
+    if (Array.isArray(obj)) {
+      return "{" + obj.map(toLuaTable).join(",") + "}"
+    }
+    if (typeof obj === "object" && obj !== null) {
+      return "{" + Object.entries(obj)
+        .map(([k, v]) => `["${k}"]=${toLuaTable(v)}`)
+        .join(",") + "}"
+    }
+    if (typeof obj === "string") {
+      return `"${obj.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`
+    }
+    if (typeof obj === "number") return obj
+    if (typeof obj === "boolean") return obj ? "true" : "false"
+    return "nil"
+  }
+
+  const stepsLua = toLuaTable(
+    presetConfig.Steps.map(s => ({
+      Name: s.Name,
+      Settings: s.Settings || {}
+    }))
+  )
+
+  const escapedCode = code
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t")
+
+  const script = `
+    local Pipeline = require("prometheus.pipeline")
+    local logger = require("logger")
+    logger.logLevel = 0
+
+    local config = {
+      LuaVersion = "LuaU",
+      VarNamePrefix = "",
+      NameGenerator = "MangledShuffled",
+      PrettyPrint = false,
+      Seed = math.random(1, 1000000),
+      InjectRuntimeModules = true,
+      Steps = {}
+    }
+
+    local steps = ${stepsLua}
+    for i, s in ipairs(steps) do
+      table.insert(config.Steps, {
+        Name = s.Name,
+        Settings = s.Settings or {}
+      })
+    end
+
+    local pipeline = Pipeline:fromConfig(config)
+    local result = pipeline:apply("${escapedCode}", "input.lua")
+    return result
+  `
+
+  const res = lauxlib.luaL_dostring(luaState, to_luastring(script))
+  if (res !== 0) {
+    const err = to_jsstring(lua.lua_tostring(luaState, -1))
+    lua.lua_pop(luaState, 1)
+    throw new Error(err)
+  }
+
+  const out = to_jsstring(lua.lua_tostring(luaState, -1))
+  lua.lua_pop(luaState, 1)
+  return out
+}
+
+
+window.lightObfuscator = { obfuscate: obfuscateCode }
+
+const realFetch = window.fetch
+
+window.fetch = async (input, init = {}) => {
+  const url = typeof input === "string" ? input : input.url
+
+  if (url === "/api/obfuscate") {
+    try {
+      const body = JSON.parse(init.body || "{}")
+      const output = await window.lightObfuscator.obfuscate(
+        body.code,
+        body.preset || "Medium"
+      )
+
+      return new Response(JSON.stringify({
+        success: true,
+        output
+      }), {
+        headers: { "content-type": "application/json" }
+      })
+    } catch (e) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: String(e.message || e)
+      }), { status: 400 })
+    }
+  }
+
+  return realFetch(input, init)
+}
