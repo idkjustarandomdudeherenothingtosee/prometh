@@ -42,6 +42,8 @@
 
   <button onclick="convert()">convert to one line string</button>
 
+  <button onclick="copy()">copy output</button>
+
   <textarea id="output" placeholder="escaped one-line output"></textarea>
 
   <script>
@@ -58,6 +60,13 @@
         '"'
 
       document.getElementById("output").value = out
+    }
+
+    function copy() {
+      const out = document.getElementById("output")
+      out.select()
+      out.setSelectionRange(0, out.value.length)
+      document.execCommand("copy")
     }
   </script>
 
